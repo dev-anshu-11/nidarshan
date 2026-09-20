@@ -1,7 +1,7 @@
-import { Route, Switch, Redirect } from "wouter";
+import { Route, Switch, Redirect, useLocation } from "wouter";
 import { Sidebar } from "./components/layout/Sidebar";
 import { TopBar } from "./components/layout/TopBar";
-import { Upload, Processing, Dashboard, Entities, Timeline, Report } from "./screens";
+import { Login, Upload, Processing, Dashboard, Entities, Timeline, Report } from "./screens";
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -16,6 +16,12 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const [location] = useLocation();
+
+  if (location === "/login") {
+    return <Login />;
+  }
+
   return (
     <AppLayout>
       <Switch>
@@ -27,7 +33,7 @@ export default function App() {
         <Route path="/report" component={Report} />
         
         <Route path="/">
-          <Redirect to="/dashboard" />
+          <Redirect to="/login" />
         </Route>
         
         <Route>

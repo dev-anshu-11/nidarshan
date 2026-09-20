@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { mockEntities } from "../lib/mockData";
 import { EntityChip } from "../components/common/EntityChip";
 import { RiskBadge } from "../components/entities/RiskBadge";

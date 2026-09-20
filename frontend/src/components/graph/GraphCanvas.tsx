@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeClick }: Props) {
-  const fgRef = useRef<any>();
+  const fgRef = useRef<any>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const containerRef = useRef<HTMLDivElement>(null);
 
