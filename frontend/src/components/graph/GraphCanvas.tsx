@@ -169,6 +169,7 @@ export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeC
         nodeColor={nodeColor}
         nodeVal={nodeVal}
         linkColor={linkColor}
+        // @ts-ignore - linkOpacity is missing from ForceGraphProps typings but works at runtime
         linkOpacity={(link: any) => link.tier === 'strong' ? 0.62 : link.tier === 'moderate' ? 0.22 : 0.1}
         linkWidth={(link: any) => link.tier === 'strong' ? 1.8 : 1}
         linkLineDash={(link: any) => link.tier === 'weak' ? [6, 6] : link.tier === 'moderate' ? [2, 5] : []}
