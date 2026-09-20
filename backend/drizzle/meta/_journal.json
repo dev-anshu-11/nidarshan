@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1789369426349,
+      "tag": "0000_cute_vermin",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1789369475845,
+      "tag": "0001_sturdy_scarlet_spider",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1789371406933,
+      "tag": "0002_reflective_arachne",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1789372418912,
+      "tag": "0003_hard_sinister_six",
+      "breakpoints": true
+    }
+  ]
+}

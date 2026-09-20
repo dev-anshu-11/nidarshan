@@ -1,0 +1,35 @@
+[09:00, 28/09/2026] Unknown: msg 17
+[09:00, 28/09/2026] Unknown: msg 16
+[09:00, 28/09/2026] Unknown: msg 15
+[09:00, 28/09/2026] Unknown: msg 14
+[09:00, 28/09/2026] Unknown: msg 13
+[09:00, 28/09/2026] Unknown: msg 12
+[09:00, 28/09/2026] Unknown: msg 11
+[09:00, 28/09/2026] Unknown: msg 10
+[09:00, 28/09/2026] Unknown: msg 9
+[09:00, 28/09/2026] Unknown: msg 8
+[09:00, 28/09/2026] Unknown: msg 7
+[09:00, 28/09/2026] Unknown: msg 6
+[09:00, 28/09/2026] Unknown: msg 5
+[09:00, 28/09/2026] Unknown: msg 4
+[09:00, 28/09/2026] Unknown: msg 3
+[09:00, 28/09/2026] Unknown: msg 2
+[09:00, 28/09/2026] Unknown: msg 1
+[09:00, 28/09/2026] Unknown: msg 0
+[10:15, 30/09/2026] Unknown: bhai tera account 2-3 din ke liye chahiye, koi risk nahi, 30% commission pakka milega
+[10:18, 30/09/2026] Ravi: pakka na? police ka koi chakkar toh nahi hoga?
+[10:20, 30/09/2026] Unknown: arre nahi bhai, main baitha hu na. tension mat le
+[14:30, 01/10/2026] Unknown: tera upi id bhej jaldi
+[14:35, 01/10/2026] Ravi: cashout.mule1@paytm
+[14:40, 01/10/2026] Unknown: thk hai
+[09:00, 02/10/2026] Unknown: aaj kaam hoga, ready reh
+[09:05, 02/10/2026] Ravi: haan bhai ready hu
+[09:48, 02/10/2026] Unknown: <Media omitted>
+[09:49, 02/10/2026] Unknown: 50 hazaar aane wale hain
+[09:55, 02/10/2026] Unknown: OTP share mat karna apna, bas receive karna hai
+[10:05, 02/10/2026] Unknown: abhi transfer aaya? forward kar 9811223344@gpay pe
+[10:07, 02/10/2026] Ravi: haan aaya, kar raha hu
+[10:10, 02/10/2026] Ravi: kar diya forward
+[10:15, 02/10/2026] Unknown: kaam ho gaya, kal milte hain, cash leke
+[10:20, 02/10/2026] Unknown: phone band kar ab
+[10:25, 02/10/2026] Unknown: aur koi puche toh 9811234567 pe call kar

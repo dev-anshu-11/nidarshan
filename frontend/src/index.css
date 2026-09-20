@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+:root {
+  --bg-page: #08090f;
+  --bg-card: #0f1018;
+  --bg-elevated: #141622;
+  --border-default: #1c1e2e;
+  --border-strong: #2a2d42;
+
+  --text-primary: #f1f3ff;
+  --text-secondary: #8891aa;
+  --text-disabled: #4a5068;
+  --text-code: #a3aed0;
+
+  --brand-primary: #7c3aed;
+  --brand-hover: #6d28d9;
+  --brand-subtle: #1a103a;
+  --brand-border: #3b1f80;
+
+  --risk-critical: #dc2626;
+  --risk-critical-bg: #1f0808;
+  --risk-high: #f97316;
+  --risk-high-bg: #1f0e04;
+  --risk-medium: #eab308;
+  --risk-medium-bg: #1a1500;
+  --risk-low: #10b981;
+  --risk-low-bg: #051a10;
+
+  --conf-strong: #10b981;
+  --conf-mod: #f59e0b;
+  --conf-weak: #ef4444;
+
+  --ent-victim: #3b82f6;
+  --ent-mule: #f97316;
+  --ent-cashout: #dc2626;
+  --ent-device: #8b5cf6;
+  --ent-ip: #6b7280;
+  --ent-unknown: #374151;
+
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: var(--bg-page);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+html { min-width: 320px; background: var(--bg-page); }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--bg-page); }
+button, input { font: inherit; }
+button { cursor: pointer; }
+
+/* Custom scrollbar for Evidence Drawer and Panels */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-disabled); }
+
+.font-display { font-family: var(--font-display); }
+.font-mono { font-family: var(--font-mono); }
+
+/* Spacing and Utilities */
+.drawer-enter { transform: translateX(100%); }
+.drawer-enter-active { transform: translateX(0); transition: transform 0.25s ease-out; }
+.drawer-exit { transform: translateX(0); }
+.drawer-exit-active { transform: translateX(100%); transition: transform 0.25s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+}

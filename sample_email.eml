@@ -1,0 +1,25 @@
+Delivered-To: rameshsharma99@gmail.com
+Received: by 2002:a05:6a11:1111:0:0:0:0 with SMTP id 12345;
+        Thu, 01 Oct 2026 14:22:15 -0700 (PDT)
+Return-Path: <sbi.alert.secure@gmail.com>
+Received: from mail-oo1-f49.google.com (mail-oo1-f49.google.com. [45.134.212.73])
+        by mx.google.com with ESMTPS id 67890
+        for <rameshsharma99@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 01 Oct 2026 14:22:15 -0700 (PDT)
+From: "SBI Security" <sbi.alert.secure@gmail.com>
+To: rameshsharma99@gmail.com
+Subject: URGENT: Your SBI account will be blocked - Verify NOW
+Date: Thu, 01 Oct 2026 14:22:10 -0700
+Message-ID: <9876543210@mail.gmail.com>
+X-Originating-IP: 45.134.212.73
+Content-Type: text/html; charset="UTF-8"
+
+<html>
+<body>
+<p>Dear Customer,</p>
+<p>Your account will be blocked in 24 hours due to suspicious activity. Please call our helpline immediately to verify your identity.</p>
+<p><strong>Helpline: 9811234567</strong></p>
+<button style="padding:10px; background-color:blue; color:white;">Login to SBI</button>
+</body>
+</html>
