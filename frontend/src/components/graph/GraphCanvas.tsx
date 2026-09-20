@@ -71,21 +71,28 @@ export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeC
     return colors.confidence.weak;
   }, []);
 
+  useEffect(() => {
+    const charge = fgRef.current?.d3Force('charge');
+    const link = fgRef.current?.d3Force('link');
+    charge?.strength(-260);
+    link?.distance(150);
+  }, [nodes.length, edges.length]);
+
   const paintNode = useCallback((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const color = nodeColor(node);
-    const r = node.type === 'device' || node.type === 'ip' ? 24 / globalScale : 30 / globalScale;
-    const labelFontSize = 10 / globalScale;
-    const typeFontSize = 8 / globalScale;
+    const r = node.type === 'device' || node.type === 'ip' ? 20 / globalScale : 24 / globalScale;
+    const labelFontSize = 9 / globalScale;
+    const typeFontSize = 7 / globalScale;
     const badgeRadius = 9 / globalScale;
     const typeLabel = node.type === 'cashout' ? 'CASH-OUT' : String(node.type || 'UNKNOWN').toUpperCase();
 
     ctx.save();
-    ctx.globalAlpha = selectedNodeId && node.id !== selectedNodeId ? 0.42 : 1;
+    ctx.globalAlpha = selectedNodeId && node.id !== selectedNodeId ? 0.28 : 0.9;
     ctx.shadowColor = color;
-    ctx.shadowBlur = 15 / globalScale;
+    ctx.shadowBlur = 9 / globalScale;
     ctx.beginPath();
-    ctx.arc(node.x, node.y, r + 8 / globalScale, 0, 2 * Math.PI, false);
-    ctx.fillStyle = `${color}1f`;
+    ctx.arc(node.x, node.y, r + 5 / globalScale, 0, 2 * Math.PI, false);
+    ctx.fillStyle = `${color}14`;
     ctx.fill();
     ctx.shadowBlur = 0;
     ctx.beginPath();
@@ -93,7 +100,7 @@ export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeC
     ctx.fillStyle = '#171a25';
     ctx.fill();
     ctx.strokeStyle = color;
-    ctx.lineWidth = node.id === selectedNodeId ? 3 / globalScale : 1.5 / globalScale;
+    ctx.lineWidth = node.id === selectedNodeId ? 2.5 / globalScale : 1 / globalScale;
     ctx.stroke();
 
     // Score badge
@@ -126,7 +133,7 @@ export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeC
     ctx.textBaseline = 'middle';
     ctx.font = `600 ${labelFontSize}px "DM Sans", sans-serif`;
     ctx.fillStyle = '#e2e8f0';
-    ctx.fillText(String(node.value), node.x, node.y - 5 / globalScale);
+    ctx.fillText(String(node.value).slice(0, 18), node.x, node.y - 5 / globalScale);
     ctx.font = `500 ${typeFontSize}px "DM Sans", sans-serif`;
     ctx.fillStyle = '#64748b';
     ctx.fillText(typeLabel, node.x, node.y + 9 / globalScale);
@@ -139,11 +146,12 @@ export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeC
     if (typeof source !== 'object' || typeof target !== 'object') return;
     const x = (source.x + target.x) / 2;
     const y = (source.y + target.y) / 2;
+    if (link.tier !== 'strong') return;
     const description = link.reasons?.find((reason: any) => reason.found)?.description;
     if (!description) return;
     ctx.save();
-    ctx.font = `${9 / globalScale}px "DM Sans", sans-serif`;
-    ctx.fillStyle = 'rgba(112, 119, 143, 0.78)';
+    ctx.font = `${8 / globalScale}px "DM Sans", sans-serif`;
+    ctx.fillStyle = 'rgba(100, 108, 132, 0.62)';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
     ctx.fillText(String(description).slice(0, 28), x, y - 5 / globalScale);
@@ -151,7 +159,7 @@ export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeC
   }, []);
 
   return (
-    <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-[#08090f] bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:70px_70px]">
+    <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-[#08090f] bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:70px_70px]">
       <ForceGraph2D
         ref={fgRef}
         width={dimensions.width}
@@ -161,8 +169,8 @@ export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeC
         nodeColor={nodeColor}
         nodeVal={nodeVal}
         linkColor={linkColor}
-        linkOpacity={(link: any) => link.tier === 'strong' ? 0.9 : link.tier === 'moderate' ? 0.55 : 0.28}
-        linkWidth={(link: any) => link.tier === 'strong' ? 2.4 : 1.4}
+        linkOpacity={(link: any) => link.tier === 'strong' ? 0.62 : link.tier === 'moderate' ? 0.22 : 0.1}
+        linkWidth={(link: any) => link.tier === 'strong' ? 1.8 : 1}
         linkLineDash={(link: any) => link.tier === 'weak' ? [6, 6] : link.tier === 'moderate' ? [2, 5] : []}
         linkCurvature={0.12}
         linkDirectionalArrowLength={6}
