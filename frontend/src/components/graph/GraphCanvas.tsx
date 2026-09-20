@@ -13,6 +13,14 @@ interface Props {
 }
 
 export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeClick }: Props) {
+  const graphEntityColors: Record<string, string> = {
+    victim: '#34d399',
+    mule: '#fb7185',
+    device: '#fb923c',
+    ip: '#fb923c',
+    cashout: '#fb7185',
+    unknown: '#8b8d98',
+  };
   const fgRef = useRef<any>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -54,8 +62,8 @@ export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeC
     console.log("Screenshot requested");
   };
 
-  const nodeColor = useCallback((node: any) => colors.entity[node.type as keyof typeof colors.entity] || colors.entity.unknown, []);
-  const nodeVal = useCallback((node: any) => Math.max(1, Math.min(8, node.score / 12)), []);
+  const nodeColor = useCallback((node: any) => graphEntityColors[node.type] || graphEntityColors.unknown, []);
+  const nodeVal = useCallback((node: any) => Math.max(4, Math.min(12, node.score / 8)), []);
   
   const linkColor = useCallback((link: any) => {
     if (link.tier === 'strong') return colors.confidence.strong;
@@ -64,51 +72,86 @@ export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeC
   }, []);
 
   const paintNode = useCallback((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
-    const label = node.value;
-    const fontSize = 12 / globalScale;
-    ctx.font = `${fontSize}px Sans-Serif`;
-    const textWidth = ctx.measureText(label).width;
-    const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
+    const color = nodeColor(node);
+    const r = node.type === 'device' || node.type === 'ip' ? 24 / globalScale : 30 / globalScale;
+    const labelFontSize = 10 / globalScale;
+    const typeFontSize = 8 / globalScale;
+    const badgeRadius = 9 / globalScale;
+    const typeLabel = node.type === 'cashout' ? 'CASH-OUT' : String(node.type || 'UNKNOWN').toUpperCase();
 
-    // Draw node circle with glow
-    const r = Math.sqrt(Math.max(0, nodeVal(node))) * 3;
-    
-    ctx.shadowColor = nodeColor(node);
+    ctx.save();
+    ctx.globalAlpha = selectedNodeId && node.id !== selectedNodeId ? 0.42 : 1;
+    ctx.shadowColor = color;
     ctx.shadowBlur = 15 / globalScale;
-    
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, r + 8 / globalScale, 0, 2 * Math.PI, false);
+    ctx.fillStyle = `${color}1f`;
+    ctx.fill();
+    ctx.shadowBlur = 0;
     ctx.beginPath();
     ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
-    ctx.fillStyle = nodeColor(node);
+    ctx.fillStyle = '#171a25';
     ctx.fill();
-    
-    // Reset shadow for other drawings
-    ctx.shadowBlur = 0;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = node.id === selectedNodeId ? 3 / globalScale : 1.5 / globalScale;
+    ctx.stroke();
 
-    // Draw selection ring
+    // Score badge
+    const badgeX = node.x + r + 1 / globalScale;
+    const badgeY = node.y - r - 5 / globalScale;
+    ctx.beginPath();
+    ctx.arc(badgeX, badgeY, badgeRadius, 0, 2 * Math.PI, false);
+    ctx.fillStyle = '#12141d';
+    ctx.fill();
+    ctx.strokeStyle = '#2b3042';
+    ctx.lineWidth = 1 / globalScale;
+    ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.font = `600 ${8 / globalScale}px "DM Sans", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(String(Math.round(node.score ?? 0)), badgeX, badgeY);
+
+    // Selection ring
     if (node.id === selectedNodeId) {
       ctx.beginPath();
-      ctx.arc(node.x, node.y, r + 5/globalScale, 0, 2 * Math.PI, false);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.arc(node.x, node.y, r + 5 / globalScale, 0, 2 * Math.PI, false);
+      ctx.strokeStyle = '#f1f3ff';
       ctx.lineWidth = 2 / globalScale;
       ctx.stroke();
     }
 
-    // Draw label with dark pill background for readability
-    const labelY = node.y + r + 4/globalScale;
-    ctx.fillStyle = 'rgba(8, 9, 15, 0.85)';
-    ctx.beginPath();
-    ctx.roundRect(node.x - bckgDimensions[0] / 2, labelY, bckgDimensions[0], bckgDimensions[1], 4/globalScale);
-    ctx.fill();
-    
-    // Draw label text
-    ctx.fillStyle = 'rgba(241, 243, 255, 0.9)';
+    // Keep labels inside the node ring like the reference network.
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(label, node.x, labelY + bckgDimensions[1]/2);
+    ctx.font = `600 ${labelFontSize}px "DM Sans", sans-serif`;
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillText(String(node.value), node.x, node.y - 5 / globalScale);
+    ctx.font = `500 ${typeFontSize}px "DM Sans", sans-serif`;
+    ctx.fillStyle = '#64748b';
+    ctx.fillText(typeLabel, node.x, node.y + 9 / globalScale);
+    ctx.restore();
   }, [selectedNodeId, nodeVal, nodeColor]);
 
+  const paintLinkLabel = useCallback((link: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
+    const source = link.source;
+    const target = link.target;
+    if (typeof source !== 'object' || typeof target !== 'object') return;
+    const x = (source.x + target.x) / 2;
+    const y = (source.y + target.y) / 2;
+    const description = link.reasons?.find((reason: any) => reason.found)?.description;
+    if (!description) return;
+    ctx.save();
+    ctx.font = `${9 / globalScale}px "DM Sans", sans-serif`;
+    ctx.fillStyle = 'rgba(112, 119, 143, 0.78)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(String(description).slice(0, 28), x, y - 5 / globalScale);
+    ctx.restore();
+  }, []);
+
   return (
-    <div ref={containerRef} className="w-full h-full relative bg-[#08090f] overflow-hidden">
+    <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-[#08090f] bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:70px_70px]">
       <ForceGraph2D
         ref={fgRef}
         width={dimensions.width}
@@ -118,11 +161,15 @@ export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeC
         nodeColor={nodeColor}
         nodeVal={nodeVal}
         linkColor={linkColor}
-        linkWidth={(link: any) => link.tier === 'strong' ? 2 : 1}
-        linkCurvature={0.2}
-        linkDirectionalParticles={2}
-        linkDirectionalParticleWidth={1.5}
-        linkDirectionalParticleColor={linkColor}
+        linkOpacity={(link: any) => link.tier === 'strong' ? 0.9 : link.tier === 'moderate' ? 0.55 : 0.28}
+        linkWidth={(link: any) => link.tier === 'strong' ? 2.4 : 1.4}
+        linkLineDash={(link: any) => link.tier === 'weak' ? [6, 6] : link.tier === 'moderate' ? [2, 5] : []}
+        linkCurvature={0.12}
+        linkDirectionalArrowLength={6}
+        linkDirectionalArrowRelPos={1}
+        linkDirectionalArrowColor={linkColor}
+        linkCanvasObject={paintLinkLabel}
+        linkCanvasObjectMode={() => 'after'}
         nodeCanvasObject={paintNode}
         onNodeClick={onNodeClick}
         onLinkClick={(link, event) => onEdgeClick(link as any, event as any)}
@@ -145,11 +192,12 @@ export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeC
       </div>
       
       {/* Legend */}
-      <div className="absolute bottom-4 left-4 p-3 rounded-lg bg-[#0f1018] border border-[#1c1e2e] shadow-lg flex flex-col gap-2">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{backgroundColor: colors.entity.victim}}></span><span className="text-[10px] text-[#8891aa] font-sans">Victim</span></div>
-          <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{backgroundColor: colors.entity.mule}}></span><span className="text-[10px] text-[#8891aa] font-sans">Mule</span></div>
-          <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{backgroundColor: colors.entity.cashout}}></span><span className="text-[10px] text-[#8891aa] font-sans">Cash-out</span></div>
+      <div className="absolute bottom-4 left-4 p-3 rounded-lg bg-[#0f1018]/90 border border-[#1c1e2e] shadow-lg flex flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{backgroundColor: graphEntityColors.victim}}></span><span className="text-[10px] text-[#8891aa] font-sans">Victim</span></div>
+          <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{backgroundColor: graphEntityColors.mule}}></span><span className="text-[10px] text-[#8891aa] font-sans">Mule</span></div>
+          <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{backgroundColor: graphEntityColors.device}}></span><span className="text-[10px] text-[#8891aa] font-sans">Device</span></div>
+          <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{backgroundColor: graphEntityColors.ip}}></span><span className="text-[10px] text-[#8891aa] font-sans">Shared IP</span></div>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5"><span className="w-4 h-[2px]" style={{backgroundColor: colors.confidence.strong}}></span><span className="text-[10px] text-[#8891aa] font-sans">Strong link</span></div>

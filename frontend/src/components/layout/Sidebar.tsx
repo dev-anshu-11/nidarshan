@@ -20,7 +20,7 @@ export function Sidebar() {
           return (
             <Link key={item.href} href={item.href}>
               <a className={`flex items-center w-full px-4 py-3 gap-4 whitespace-nowrap outline-none ${active ? 'border-l-2 border-[#7c3aed] bg-[#1a103a]' : 'border-l-2 border-transparent hover:bg-[#141622]'}`}>
-                <item.icon size={20} className={active ? 'text-[#7c3aed]' : 'text-[#8891aa]'} />
+                <item.icon size={20} className={`w-5 min-w-5 shrink-0 ${active ? 'text-[#7c3aed]' : 'text-[#8891aa]'}`} />
                 <span className={`font-display text-[11px] font-medium tracking-wide ${active ? 'text-[#f1f3ff]' : 'text-[#8891aa]'} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
                   {item.label}
                 </span>
@@ -32,7 +32,7 @@ export function Sidebar() {
       <div className="flex flex-col py-4 border-t border-[#1c1e2e]">
         <Link href="/settings">
           <a className="flex items-center w-full px-4 py-3 gap-4 whitespace-nowrap outline-none border-l-2 border-transparent hover:bg-[#141622]">
-            <Settings size={20} className="text-[#8891aa]" />
+            <Settings size={20} className="w-5 min-w-5 shrink-0 text-[#8891aa]" />
             <span className="font-display text-[11px] font-medium tracking-wide text-[#8891aa] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               Settings
             </span>
