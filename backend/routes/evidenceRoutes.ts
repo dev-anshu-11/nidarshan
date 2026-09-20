@@ -11,7 +11,7 @@ const upload = multer({
   limits: { files: 10, fileSize: 15 * 1024 * 1024 },
   fileFilter: (_req, file, callback) => {
     const lower = file.originalname.toLowerCase();
-    callback(null, lower.endsWith(".csv") || lower.endsWith(".eml"));
+    callback(null, lower.endsWith(".csv") || lower.endsWith(".eml") || lower.endsWith(".txt"));
   },
 });
 

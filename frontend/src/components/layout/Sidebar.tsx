@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { UploadCloud, Shield, Users, Clock, FileText, Settings } from "lucide-react";
+import { UploadCloud, Shield, Users, Clock, FileText, Settings, FileSearch } from "lucide-react";
 
 export function Sidebar() {
   const [location] = useLocation();
@@ -10,6 +10,7 @@ export function Sidebar() {
     { href: "/entities", icon: Users, label: "Entities" },
     { href: "/timeline", icon: Clock, label: "Timeline" },
     { href: "/report", icon: FileText, label: "Report" },
+    { href: "/audit", icon: FileSearch, label: "Audit Log" },
   ];
 
   return (
@@ -31,9 +32,9 @@ export function Sidebar() {
       </div>
       <div className="flex flex-col py-4 border-t border-[#1c1e2e]">
         <Link href="/settings">
-          <a className="flex items-center w-full px-4 py-3 gap-4 whitespace-nowrap outline-none border-l-2 border-transparent hover:bg-[#141622]">
-            <Settings size={20} className="w-5 min-w-5 shrink-0 text-[#8891aa]" />
-            <span className="font-display text-[11px] font-medium tracking-wide text-[#8891aa] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <a className={`flex items-center w-full px-4 py-3 gap-4 whitespace-nowrap outline-none ${location === '/settings' ? 'border-l-2 border-[#7c3aed] bg-[#1a103a]' : 'border-l-2 border-transparent hover:bg-[#141622]'}`}>
+            <Settings size={20} className={`w-5 min-w-5 shrink-0 ${location === '/settings' ? 'text-[#7c3aed]' : 'text-[#8891aa]'}`} />
+            <span className={`font-display text-[11px] font-medium tracking-wide ${location === '/settings' ? 'text-[#f1f3ff]' : 'text-[#8891aa]'} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
               Settings
             </span>
           </a>

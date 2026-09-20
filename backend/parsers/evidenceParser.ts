@@ -3,7 +3,7 @@ import path from "node:path";
 import { simpleParser } from "mailparser";
 
 export type ParsedEvidence = {
-  format: "CSV" | "EML";
+  format: "CSV" | "EML" | "TXT";
   rowCount: number;
   preview: unknown[];
   headers: string[];
@@ -126,5 +126,24 @@ export async function parseEvidenceFile(file: { originalname: string; mimetype: 
     };
   }
 
-  throw new Error("Unsupported evidence type. Upload a .csv or .eml file.");
+  if (extension === ".txt" || file.mimetype === "text/plain") {
+    const text = file.buffer.toString("utf8");
+    // Parse WhatsApp-style chat: [HH:MM, DD/MM/YYYY] Contact: message
+    const messagePattern = /^\[?\d{1,2}[:\.]\d{2}/m;
+    const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+    const messages = lines.filter(l => messagePattern.test(l));
+    const entities = extractFromText(text);
+    const preview = messages.slice(0, 30).map(m => ({ message: m }));
+    return {
+      format: "TXT",
+      rowCount: messages.length || lines.length,
+      preview,
+      headers: ["message"],
+      receivedIps: unique(text.match(patterns.IP) ?? []),
+      entities,
+      textSummary: `Chat export with ${messages.length || lines.length} messages parsed`,
+    };
+  }
+
+  throw new Error("Unsupported evidence type. Upload a .csv, .eml, or .txt file.");
 }
