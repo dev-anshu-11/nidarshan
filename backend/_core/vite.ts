@@ -49,7 +49,7 @@ export async function setupVite(app: Express, server: Server) {
 
 export function serveStatic(app: Express) {
   if (process.env.NODE_ENV === "production") {
-    const frontendDist = path.join(import.meta.dirname, "..", "..", "frontend", "dist");
+    const frontendDist = path.join(import.meta.dirname, "..", "..", "dist", "public");
     app.use(express.static(frontendDist));
     app.use("*", (_req, res) => {
       res.sendFile(path.join(frontendDist, "index.html"));

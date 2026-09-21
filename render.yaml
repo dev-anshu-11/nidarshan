@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: nidarshan
+    runtime: node
+    plan: free
+    buildCommand: pnpm install && pnpm run build
+    startCommand: pnpm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DEMO_MODE
+        value: "true"
+      - key: PORT
+        value: "3000"
+      - key: LLM_ENABLED
+        value: "false"

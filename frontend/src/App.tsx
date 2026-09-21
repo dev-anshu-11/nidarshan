@@ -41,16 +41,15 @@ export default function App() {
           <Route path="/audit" component={AuditLog} />
 
           <Route path="/">
-            <Redirect to="/login" />
+            <Redirect to="/upload" />
           </Route>
 
           <Route>
-            <div className="p-8">
-              <h1 className="font-display text-xl">404 Not Found</h1>
-            </div>
+            <Redirect to="/upload" />
           </Route>
         </Switch>
       </AppLayout>
     </CaseProvider>
   );
 }
+
