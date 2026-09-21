@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "concurrently \"pnpm run dev:backend\" \"pnpm run dev:frontend\"",
-    "dev:backend": "tsx watch backend/_core/index.ts",
+    "dev:backend": "node --import tsx --watch backend/_core/index.ts",
     "dev:frontend": "vite",
     "build": "vite build && node node_modules/esbuild/bin/esbuild backend/_core/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --packages=external --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\"",
     "start": "cross-env NODE_ENV=production DEMO_MODE=true node dist/index.js",
