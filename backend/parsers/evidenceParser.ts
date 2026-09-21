@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import path from "node:path";
 import { simpleParser } from "mailparser";
+import * as xlsx from "xlsx";
 
 export type ParsedEvidence = {
   format: "CSV" | "EML" | "TXT";
@@ -145,5 +146,23 @@ export async function parseEvidenceFile(file: { originalname: string; mimetype: 
     };
   }
 
-  throw new Error("Unsupported evidence type. Upload a .csv, .eml, or .txt file.");
+  if (extension === ".xlsx" || extension === ".xls" || file.mimetype.includes("excel") || file.mimetype.includes("spreadsheetml")) {
+    const workbook = xlsx.read(file.buffer, { type: "buffer" });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const csvData = xlsx.utils.sheet_to_csv(sheet);
+    const { headers, rows } = parseCsvRows(csvData);
+    
+    return {
+      format: "CSV",
+      rowCount: rows.length,
+      preview: rows.slice(0, 25),
+      headers,
+      receivedIps: unique((csvData.match(patterns.IP) ?? [])),
+      entities: extractFromText(csvData),
+      textSummary: `${rows.length} rows parsed from ${headers.length} columns (Excel)`,
+    };
+  }
+
+  throw new Error("Unsupported evidence type. Upload a .csv, .eml, .txt, .xlsx, or .xls file.");
 }
