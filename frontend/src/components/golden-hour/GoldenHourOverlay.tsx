@@ -1,7 +1,9 @@
 import { AlertTriangle, Download, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useCase } from "../../lib/CaseContext";
 
 export function GoldenHourOverlay({ onClose }: { onClose: () => void }) {
+  const caseCtx = useCase();
   const [timeLeft, setTimeLeft] = useState(58 * 60 + 14); // 58:14 in seconds
 
   useEffect(() => {
@@ -69,7 +71,14 @@ export function GoldenHourOverlay({ onClose }: { onClose: () => void }) {
 
       {/* Download Button */}
       <div className="mt-auto self-center">
-        <button className="flex items-center justify-center gap-2 px-8 h-12 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-display text-[14px] font-bold rounded-lg shadow-[0_0_15px_rgba(220,38,38,0.4)] transition-all">
+        <button 
+          onClick={() => {
+            if (caseCtx.caseNumber) {
+              window.open(`/api/cases/${caseCtx.caseNumber}/report.pdf`, '_blank');
+            }
+          }}
+          className="flex items-center justify-center gap-2 px-8 h-12 bg-[#dc2626] hover:bg-[#b91c1c] text-white font-display text-[14px] font-bold rounded-lg shadow-[0_0_15px_rgba(220,38,38,0.4)] transition-all"
+        >
           <Download size={18} /> Download Brief
         </button>
       </div>
