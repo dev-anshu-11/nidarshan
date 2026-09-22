@@ -6,8 +6,16 @@ export function Login() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, perform auth here.
-    setLocation("/upload");
+    const form = e.currentTarget as HTMLFormElement;
+    const investigatorId = (form.elements.namedItem("investigatorId") as HTMLInputElement | null)?.value.trim();
+    const passcode = (form.elements.namedItem("passcode") as HTMLInputElement | null)?.value;
+
+    if (investigatorId && passcode) {
+      setLocation("/upload");
+      return;
+    }
+
+    alert("Please enter both an investigator ID and passcode.");
   };
 
   return (
@@ -31,22 +39,24 @@ export function Login() {
             <label className="font-display text-[11px] font-medium text-[#8891aa] uppercase tracking-wider">
               Investigator ID / Email
             </label>
-            <input 
-              type="text" 
+            <input
+              type="text"
+              name="investigatorId"
               placeholder="Enter your ID"
               className="w-full h-10 px-4 bg-[#141622] border border-[#2a2d42] rounded-md font-sans text-[14px] text-[#f1f3ff] placeholder:text-[#4a5068] focus:outline-none focus:border-[#7c3aed] transition-colors"
               required
             />
           </div>
-          
+
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center">
               <label className="font-display text-[11px] font-medium text-[#8891aa] uppercase tracking-wider">
                 Passcode
               </label>
             </div>
-            <input 
-              type="password" 
+            <input
+              type="password"
+              name="passcode"
               placeholder="••••••••"
               className="w-full h-10 px-4 bg-[#141622] border border-[#2a2d42] rounded-md font-sans text-[14px] text-[#f1f3ff] placeholder:text-[#4a5068] focus:outline-none focus:border-[#7c3aed] transition-colors"
               required
