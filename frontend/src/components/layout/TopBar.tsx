@@ -1,4 +1,4 @@
-import { Activity, ShieldAlert, Zap, FileJson } from "lucide-react";
+import { Activity, ShieldAlert, Zap, FileJson, Clock3 } from "lucide-react";
 import { useState } from "react";
 import { GoldenHourOverlay } from "../golden-hour/GoldenHourOverlay";
 import { useCase } from "../../lib/CaseContext";
@@ -75,9 +75,16 @@ export function TopBar() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsGoldenHourOpen(true)}
-            className="px-3 py-1.5 border border-[#dc2626] text-white font-display text-[11px] font-medium rounded hover:bg-[#dc2626] transition-colors tracking-wide uppercase"
+            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl border border-[#ef4444]/70 bg-gradient-to-r from-[#1a0e0e] via-[#2f1212] to-[#1a0e0e] px-3.5 py-2 text-[#fff3f3] shadow-[0_0_0_1px_rgba(239,68,68,0.25),0_10px_25px_rgba(220,38,38,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f87171] hover:shadow-[0_0_0_1px_rgba(248,113,113,0.5),0_14px_30px_rgba(220,38,38,0.28)] focus:outline-none focus:ring-2 focus:ring-[#ef4444]/50 focus:ring-offset-2 focus:ring-offset-[#08090f]"
+            aria-label="Open Golden Hour triage"
           >
-            Golden Hour
+            <span className="absolute inset-0 bg-gradient-to-r from-[#ef4444]/0 via-[#f87171]/15 to-[#ef4444]/0 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+            <span className="relative flex h-5 w-5 items-center justify-center rounded-full bg-[#ef4444]/15 ring-1 ring-[#fca5a5]/60">
+              <Clock3 size={12} className="text-[#fca5a5]" />
+            </span>
+            <span className="relative font-display text-[10px] font-semibold uppercase tracking-[0.18em] text-[#fee2e2]">
+              Golden Hour
+            </span>
           </button>
         </div>
       </header>

@@ -46,6 +46,6 @@ describe("evidenceParser", () => {
   });
 
   it("computes a stable SHA-256 file hash", () => {
-    expect(sha256(Buffer.from("nidarshan"))).toBe("");
+    expect(sha256(Buffer.from("nidarshan"))).toBe("cd0ac9f79373244e46dab87e9cb099bffcdea20f2aca0a98461f1777a7001dbc");
   });
 });

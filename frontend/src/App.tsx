@@ -41,11 +41,11 @@ export default function App() {
           <Route path="/audit" component={AuditLog} />
 
           <Route path="/">
-            <Redirect to="/upload" />
+            <Redirect to="/login" />
           </Route>
 
           <Route>
-            <Redirect to="/upload" />
+            <Redirect to="/login" />
           </Route>
         </Switch>
       </AppLayout>

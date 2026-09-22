@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
-import { createDemoPayload, DEMO_CASE_NUMBER } from "./nidarshanData";
-import type { TrpcContext } from "./_core/context";
+import { createDemoPayload, DEMO_CASE_NUMBER } from "../services/nidarshanData";
+import type { TrpcContext } from "../_core/context";
 
 function createContext(): TrpcContext {
   return {
