@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import { EntityList } from "../components/entities/EntityList";
 import { GraphCanvas } from "../components/graph/GraphCanvas";
+import { GraphFilterBar } from "../components/graph/GraphFilterBar";
 import { EvidenceDrawer } from "../components/evidence/EvidenceDrawer";
-import { useCase, AnalysisEntity } from "../lib/CaseContext";
-import { Entity, Edge } from "../lib/types";
+import { useCase } from "../lib/CaseContext";
+import { Entity, Edge, EntityType, RiskTier } from "../lib/types";
+import { buildGraph, detectCommunities } from "../lib/graphUtils";
 import { ConfidencePill } from "../components/evidence/ConfidencePill";
 import { AlertCircle, UploadCloud } from 'lucide-react';
 
@@ -38,6 +40,8 @@ export function Dashboard() {
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [edgePopup, setEdgePopup] = useState<{edge: Edge, x: number, y: number} | null>(null);
+  const [activeTypes, setActiveTypes] = useState<EntityType[]>([]);
+  const [activeTiers, setActiveTiers] = useState<RiskTier[]>([]);
 
   const analysis = caseCtx.analysis;
 
@@ -63,6 +67,38 @@ export function Dashboard() {
     tier: mapConfidenceTier(l.weight),
     reasons: l.sources.map(s => ({ description: `Found in ${s}`, points: l.weight, found: true })),
   }));
+
+  // Filter nodes/edges based on active filter pills
+  const filteredEntities = useMemo(() => {
+    if (activeTypes.length === 0 && activeTiers.length === 0) return entities;
+    return entities.filter(e =>
+      (activeTypes.length === 0 || activeTypes.includes(e.type)) &&
+      (activeTiers.length === 0 || activeTiers.includes(e.tier))
+    );
+  }, [entities, activeTypes, activeTiers]);
+
+  const filteredEdges = useMemo(() => {
+    const visibleIds = new Set(filteredEntities.map(e => e.id));
+    return edges.filter(e => visibleIds.has(e.source) && visibleIds.has(e.target));
+  }, [edges, filteredEntities]);
+
+  // Community detection via Louvain — runs when entity/edge set changes
+  const communityMap = useMemo((): Map<string, number> => {
+    if (entities.length === 0) return new Map();
+    try {
+      const graph = buildGraph(entities, edges);
+      const result = detectCommunities(graph);
+      return new Map(Object.entries(result));
+    } catch {
+      return new Map();
+    }
+  }, [entities, edges]);
+
+  const handleTypeToggle = (type: EntityType) =>
+    setActiveTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
+
+  const handleTierToggle = (tier: RiskTier) =>
+    setActiveTiers(prev => prev.includes(tier) ? prev.filter(t => t !== tier) : [...prev, tier]);
 
   const selectedEntity = selectedEntityId ? entities.find(e => e.id === selectedEntityId) : null;
   const linkedEntitiesForSelected = selectedEntity
@@ -111,7 +147,7 @@ export function Dashboard() {
       {/* Left Column: Entities List */}
       <div className="w-[280px] h-full flex-shrink-0 z-20">
         <EntityList
-          entities={entities}
+          entities={filteredEntities}
           selectedId={selectedEntityId}
           onSelect={(id) => {
             setSelectedEntityId(id);
@@ -121,14 +157,26 @@ export function Dashboard() {
         />
       </div>
 
-      {/* Center Column: Graph Canvas */}
-      <div className="flex-grow h-full relative z-10">
+      {/* Center Column: Graph Canvas + Filter Bar */}
+      <div className="flex-grow h-full relative z-10 flex flex-col">
+        <GraphFilterBar
+          activeTypes={activeTypes}
+          activeTiers={activeTiers}
+          onTypeToggle={handleTypeToggle}
+          onTierToggle={handleTierToggle}
+          onReset={() => { setActiveTypes([]); setActiveTiers([]); }}
+          totalNodes={entities.length}
+          visibleNodes={filteredEntities.length}
+        />
+        <div className="flex-1 relative overflow-hidden">
         <GraphCanvas
-          nodes={entities}
-          edges={edges}
+          nodes={filteredEntities}
+          edges={filteredEdges}
           selectedNodeId={selectedEntityId}
           onNodeClick={handleNodeClick}
           onEdgeClick={handleEdgeClick}
+          communityMap={communityMap}
+          caseNumber={caseCtx.caseNumber ?? undefined}
         />
 
         {/* Edge Context Popup */}
@@ -157,6 +205,7 @@ export function Dashboard() {
             </button>
           </div>
         )}
+        </div>
       </div>
 
       {/* Right Column: Evidence Drawer (Overlay) */}

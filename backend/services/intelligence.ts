@@ -59,15 +59,42 @@ export function buildIntelligence(files: EvidenceFile[]) {
     return { id: `entity-${Buffer.from(key).toString("hex").slice(0, 12)}`, value: value.values[0] ?? key, type, sourceFiles: Array.from(value.files), score, tier: tier(score), reasons };
   }).sort((a, b) => b.score - a.score);
 
-  const links: IntelligenceLink[] = [];
+  // Build per-file links first, then merge pairs that appear across multiple files
+  const rawLinks: IntelligenceLink[] = [];
   for (const { file, entities: fileEntities } of sourceEntities) {
     const unique = Array.from(new Map(fileEntities.map(entity => [`${entity.type}:${entity.value.toLowerCase()}`, entity])).values()).slice(0, 80);
     for (let index = 0; index < unique.length; index += 1) {
       const from = entities.find(entity => entity.value.toLowerCase() === unique[index]?.value.toLowerCase() && entity.type === unique[index]?.type);
       const to = entities.find(entity => entity.value.toLowerCase() === unique[index + 1]?.value.toLowerCase() && entity.type === unique[index + 1]?.type);
-      if (from && to && from.id !== to.id) links.push({ id: `link-${links.length + 1}`, from: from.id, to: to.id, linkType: `${from.type}→${to.type}`, weight: Math.max(from.score, to.score), sources: [file.originalName] });
+      if (from && to && from.id !== to.id) {
+        rawLinks.push({ id: `link-${rawLinks.length + 1}`, from: from.id, to: to.id, linkType: `${from.type}→${to.type}`, weight: Math.max(from.score, to.score), sources: [file.originalName] });
+      }
     }
   }
+
+  // Merge duplicate pairs — boost weight +20 when the same pair appears in ≥2 source files
+  const pairMap = new Map<string, IntelligenceLink>();
+  for (const link of rawLinks) {
+    // Normalise pair key so A→B and B→A are treated as the same pair
+    const pairKey = [link.from, link.to].sort().join('::');
+    const existing = pairMap.get(pairKey);
+    if (!existing) {
+      pairMap.set(pairKey, { ...link });
+    } else {
+      // Merge sources
+      if (!existing.sources.includes(link.sources[0])) {
+        existing.sources.push(link.sources[0]);
+      }
+      // Cross-source bonus: boost weight and mark link type
+      if (existing.sources.length >= 2) {
+        existing.weight = Math.min(100, existing.weight + 20);
+        if (!existing.linkType.includes('CROSS_SOURCE')) {
+          existing.linkType += '·CROSS_SOURCE';
+        }
+      }
+    }
+  }
+  const links: IntelligenceLink[] = Array.from(pairMap.values()).map((l, i) => ({ ...l, id: `link-${i + 1}` }));
 
   const timeline = files.flatMap(file => [{ file: file.originalName, timestamp: file.createdAt, summary: file.textSummary }]).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   return { entities, links, timeline, fileCount: files.length, entityCount: entities.length, linkCount: links.length };

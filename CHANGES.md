@@ -44,32 +44,32 @@ Each entry links to the relevant branch and describes the exact files touched.
 ## [feature/network-graph] — Network Graph Visualizer Upgrade
 
 **Branch:** `feature/network-graph`
-**Status:** 🔜 Planned — see `network-graph-plan.md`
+**Status:** ✅ Committed — ready for PR merge into `main`
 
-### What will change
+### What changed
 
 | File | Change |
 |---|---|
-| `frontend/src/components/graph/GraphCanvas.tsx` | Screenshot fix, flow-direction mode, community cluster colouring |
-| `frontend/src/components/graph/GraphFilterBar.tsx` | **New** — filter toolbar (entity type, risk tier, confidence) |
-| `frontend/src/components/graph/GraphMinimap.tsx` | **New** — minimap overlay for large graphs |
-| `frontend/src/screens/Dashboard.tsx` | Wire filter state into GraphCanvas + add view-mode toggle |
-| `frontend/src/lib/graphUtils.ts` | Fix graphology type errors; expose community map to frontend |
-| `backend/services/intelligence.ts` | Improve link weight: use actual cross-file co-occurrence score |
+| `frontend/src/components/graph/GraphFilterBar.tsx` | **New** — filter toolbar: toggle by entity type (Victim / Mule / Cashout / Device / IP) and risk tier (Critical / High / Medium / Low) |
+| `frontend/src/components/graph/GraphCanvas.tsx` | Community cluster glow colouring via Louvain palette; working screenshot → PNG download; `communityMap` + `caseNumber` props |
+| `frontend/src/screens/Dashboard.tsx` | Wires `GraphFilterBar` and filter state; runs Louvain community detection via `useMemo`; passes `communityMap` and `caseNumber` to canvas |
+| `backend/services/intelligence.ts` | Cross-source link merging: pairs appearing in ≥2 files get `+20` weight boost and `·CROSS_SOURCE` marker |
 
-### What it will do
+### What it does
 
-- **Directional flow arrows** visually trace victim → mule → cash-out chain
-- **Filter bar** to isolate by entity type (victim / mule / device / IP) and risk tier
-- **Community clusters** coloured by Louvain detection (graphology already installed)
-- **Working screenshot** button (canvas `toDataURL` → PNG download)
-- **Minimap** for navigating dense graphs with many nodes
+- **Filter bar** above the graph canvas: click entity type or risk tier pills to dim/hide unmatched nodes. Live `N / total nodes` counter. "Reset" button clears all filters.
+- **Community colouring**: Louvain algorithm (graphology) runs on every analysis load and assigns each detected cluster a distinct glow colour. "N communities detected" badge appears in the legend.
+- **Screenshot**: Camera button captures the canvas as PNG and triggers browser download named `nidarshan-graph-<caseNumber>.png`.
+- **Better link weights**: cross-source links (same entity pair in ≥2 evidence files) now score higher, making them appear as `strong` confidence tier in the graph — directly reflecting real forensic correlation strength.
 
-### Why it matters for the hackathon
+### How to test
 
-> *"Mule Account & Network Graph Visualizer — Generate a directional transaction and communication flow graph mapping the chain from victim to intermediary mule nodes and ultimate cash-out points."*
-
-Directly addresses the **core deliverable** and contributes to **Usability for Field Officers (25%)** and **Forensic Accuracy (25%)** evaluation criteria.
+1. Run `pnpm dev` → open `http://localhost:3000`
+2. Upload `sample_upi.csv` + `sample_cdr.csv` → run analysis → open Dashboard
+3. Verify: filter bar appears above graph; clicking "Mule" shows only mule nodes
+4. Verify: node glows are tinted by community; legend shows community count
+5. Click Camera icon → verify PNG downloads
+6. Check cross-source links show as solid (strong) if entities appear in both files
 
 ---
 

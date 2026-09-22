@@ -4,15 +4,29 @@ import { Entity, Edge } from "../../lib/types";
 import { colors } from "../../lib/colors";
 import { Maximize, RefreshCcw, Camera } from "lucide-react";
 
+// 8 distinct community tint colours — chosen to not clash with entity colours
+const COMMUNITY_PALETTE = [
+  '#06b6d4', // cyan
+  '#a78bfa', // violet
+  '#34d399', // emerald
+  '#fbbf24', // amber
+  '#f472b6', // pink
+  '#60a5fa', // blue
+  '#4ade80', // green
+  '#f87171', // red-400
+];
+
 interface Props {
   nodes: Entity[];
   edges: Edge[];
   selectedNodeId: string | null;
   onNodeClick: (node: Entity) => void;
   onEdgeClick: (edge: Edge, event: MouseEvent) => void;
+  communityMap?: Map<string, number>;
+  caseNumber?: string;
 }
 
-export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeClick }: Props) {
+export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeClick, communityMap, caseNumber }: Props) {
   const graphEntityColors: Record<string, string> = {
     victim: '#34d399',
     mule: '#fb7185',
@@ -58,11 +72,16 @@ export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeC
     fgRef.current?.zoom(1, 400);
   };
   const handleScreenshot = () => {
-    // Simple screenshot implementation (would use canvas.toDataURL in reality)
-    console.log("Screenshot requested");
+    const canvas = containerRef.current?.querySelector('canvas');
+    if (!canvas) return;
+    const url = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `nidarshan-graph${caseNumber ? `-${caseNumber}` : ''}.png`;
+    a.click();
   };
 
-  const nodeColor = useCallback((node: any) => graphEntityColors[node.type] || graphEntityColors.unknown, []);
+  const nodeColor = useCallback((node: any) => graphEntityColors[node.type] || graphEntityColors.unknown, [graphEntityColors]);
   const nodeVal = useCallback((node: any) => Math.max(4, Math.min(12, node.score / 8)), []);
   
   const linkColor = useCallback((link: any) => {
@@ -80,6 +99,12 @@ export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeC
 
   const paintNode = useCallback((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const color = nodeColor(node);
+    // Community tint: use palette colour for glow if a community map is provided
+    const communityId = communityMap?.get(node.id);
+    const glowColor = communityId !== undefined
+      ? COMMUNITY_PALETTE[communityId % COMMUNITY_PALETTE.length]
+      : color;
+
     const r = node.type === 'device' || node.type === 'ip' ? 20 / globalScale : 24 / globalScale;
     const labelFontSize = 9 / globalScale;
     const typeFontSize = 7 / globalScale;
@@ -88,11 +113,11 @@ export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeC
 
     ctx.save();
     ctx.globalAlpha = selectedNodeId && node.id !== selectedNodeId ? 0.28 : 0.9;
-    ctx.shadowColor = color;
+    ctx.shadowColor = glowColor;
     ctx.shadowBlur = 9 / globalScale;
     ctx.beginPath();
     ctx.arc(node.x, node.y, r + 5 / globalScale, 0, 2 * Math.PI, false);
-    ctx.fillStyle = `${color}14`;
+    ctx.fillStyle = `${glowColor}14`;
     ctx.fill();
     ctx.shadowBlur = 0;
     ctx.beginPath();
@@ -213,6 +238,14 @@ export function GraphCanvas({ nodes, edges, selectedNodeId, onNodeClick, onEdgeC
           <div className="flex items-center gap-1.5"><span className="w-4 h-[2px]" style={{backgroundColor: colors.confidence.moderate}}></span><span className="text-[10px] text-[#8891aa] font-sans">Moderate</span></div>
           <div className="flex items-center gap-1.5"><span className="w-4 h-[2px]" style={{backgroundColor: colors.confidence.weak}}></span><span className="text-[10px] text-[#8891aa] font-sans">Weak link</span></div>
         </div>
+        {communityMap && communityMap.size > 0 && (
+          <div className="flex items-center gap-1.5 pt-0.5 border-t border-[#1c1e2e]">
+            <span className="w-2 h-2 rounded-full bg-[#06b6d4]" />
+            <span className="text-[10px] text-[#8891aa] font-sans">
+              {new Set(communityMap.values()).size} communities detected
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
