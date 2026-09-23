@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import type { EvidenceFile } from "../drizzle/schema";
 
 export type IntelligenceEntity = {
@@ -56,7 +57,7 @@ export function buildIntelligence(files: EvidenceFile[]) {
     if (type === "AMOUNT") { score += 5; reasons.push("Currency amount is available for transaction timeline matching"); }
     if (!reasons.length) reasons.push("Entity extracted from uploaded evidence and retained with source provenance");
     score = Math.min(100, score);
-    return { id: `entity-${Buffer.from(key).toString("hex").slice(0, 12)}`, value: value.values[0] ?? key, type, sourceFiles: Array.from(value.files), score, tier: tier(score), reasons };
+    return { id: `entity-${crypto.createHash("md5").update(key).digest("hex").slice(0, 12)}`, value: value.values[0] ?? key, type, sourceFiles: Array.from(value.files), score, tier: tier(score), reasons };
   }).sort((a, b) => b.score - a.score);
 
   const links: IntelligenceLink[] = [];

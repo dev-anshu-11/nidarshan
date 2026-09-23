@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { EntityList } from "../components/entities/EntityList";
 import { GraphCanvas } from "../components/graph/GraphCanvas";
+import { MapCanvas } from "../components/graph/MapCanvas";
 import { EvidenceDrawer } from "../components/evidence/EvidenceDrawer";
 import { useCase, AnalysisEntity } from "../lib/CaseContext";
 import { Entity, Edge } from "../lib/types";
 import { ConfidencePill } from "../components/evidence/ConfidencePill";
-import { AlertCircle, UploadCloud } from 'lucide-react';
+import { AlertCircle, UploadCloud, Map as MapIcon, Share2 as NetworkIcon } from 'lucide-react';
 
 function mapTier(tier: string): 'critical' | 'high' | 'medium' | 'low' {
   const t = tier.toLowerCase();
@@ -38,6 +39,7 @@ export function Dashboard() {
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [edgePopup, setEdgePopup] = useState<{edge: Edge, x: number, y: number} | null>(null);
+  const [viewMode, setViewMode] = useState<'graph' | 'map'>('graph');
 
   const analysis = caseCtx.analysis;
 
@@ -121,15 +123,39 @@ export function Dashboard() {
         />
       </div>
 
-      {/* Center Column: Graph Canvas */}
+      {/* Center Column: Canvas */}
       <div className="flex-grow h-full relative z-10">
-        <GraphCanvas
-          nodes={entities}
-          edges={edges}
-          selectedNodeId={selectedEntityId}
-          onNodeClick={handleNodeClick}
-          onEdgeClick={handleEdgeClick}
-        />
+        <div className="absolute top-4 right-4 z-[9999] flex bg-[#141622] rounded-lg border border-[#2a2d42] p-1 shadow-lg">
+          <button
+            onClick={() => setViewMode('graph')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-display font-medium transition-colors ${viewMode === 'graph' ? 'bg-[#7c3aed] text-white' : 'text-[#8891aa] hover:text-[#f1f3ff]'}`}
+          >
+            <NetworkIcon size={14} /> Network
+          </button>
+          <button
+            onClick={() => setViewMode('map')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-display font-medium transition-colors ${viewMode === 'map' ? 'bg-[#7c3aed] text-white' : 'text-[#8891aa] hover:text-[#f1f3ff]'}`}
+          >
+            <MapIcon size={14} /> Map
+          </button>
+        </div>
+
+        {viewMode === 'graph' ? (
+          <GraphCanvas
+            nodes={entities}
+            edges={edges}
+            selectedNodeId={selectedEntityId}
+            onNodeClick={handleNodeClick}
+            onEdgeClick={handleEdgeClick}
+          />
+        ) : (
+          <MapCanvas
+            nodes={entities}
+            edges={edges}
+            selectedNodeId={selectedEntityId}
+            onNodeClick={handleNodeClick}
+          />
+        )}
 
         {/* Edge Context Popup */}
         {edgePopup && (
