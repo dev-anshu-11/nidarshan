@@ -116,5 +116,5 @@ uploads/
 client/public/__manus__/version.json
 .project-config.json
 
-*.db-wal
-*.db-shm
+# pnpm local build approvals (machine-specific)
+.pnpm-approved-builds.json
